@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+
+     
+    stages {
+        stage('Compile and Clean') { 
+            steps {
+
+                bat 'mvn compile'
+            }
+        }
+       
+    stage('Junit5 Test') { 
+            steps {
+
+                bat 'mvn test'
+            }
+        }
+
+   //   stage('Jacoco Report'){
+    //   steps{
+      //    jacoco() 
+      //  }
+    //  }
+
+        stage('Maven Build') { 
+            steps {
+                bat 'mvn clean install'
+            }
+        }
+
+        stage('Build Docker image'){
+            steps {
+              
+               
+                 bat 'docker build -t  docker.repository.esi.adp.com/clientcentral/training:s2-b1-t4-backend --build-arg VER=1.0 .'
+            }
+        }
+      
+       
+    
+
+        stage('Docker Push'){
+            steps {
+                bat 'docker push docker.repository.esi.adp.com/clientcentral/training:s2-b1-t4-backend'
+            }
+        }
+        
+        stage('Docker deploy'){
+            steps {
+               
+                bat 'docker run -itd -p  8085:8085 docker.repository.esi.adp.com/clientcentral/training:s2-b1-t4-backend'
+            }
+        }
+        
+
+        
+        
+     
+    }
+}
